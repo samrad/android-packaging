@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Packaging</string>
+    <string name="app_description">AR in Packaging</string>
+    <string name="app_main">Packaging</string>
+</resources>

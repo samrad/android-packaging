@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<QCARConfig xsi:noNamespaceSchemaLocation="qcar_config.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Tracking>
+        <ImageTarget name="saboteur" size="129.333328 194"/>
+        <ImageTarget name="sukker" size="119.818771 260"/>
+        <ImageTarget name="square" size="80 80"/>
+        <ImageTarget name="milk3" size="119.93364 327"/>
+        <ImageTarget name="stone" size="247 172.899994"/>
+    </Tracking>
+</QCARConfig>
