@@ -19,10 +19,12 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 import com.android.vending.expansion.zipfile.ZipResourceFile;
 import com.android.vending.expansion.zipfile.ZipResourceFile.ZipEntryRO;
 import com.google.android.vending.expansion.downloader.Constants;
@@ -36,6 +38,7 @@ import com.google.android.vending.expansion.downloader.IStub;
 import com.packagingmidsweden.packaging.R;
 
 public class MainActivity extends SherlockActivity implements IDownloaderClient {
+
 	private static final String LOG_TAG = "LVLDownloader";
 	private int mState;
 
@@ -116,155 +119,155 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
      */    
     static private final float SMOOTHING_FACTOR = 0.005f;
     
-//    /**
-//     * Used by the async task
-//     */
-//    private boolean mCancelValidation;
-//
-//    /**
-//     * Go through each of the Expansion APK files and open each as a zip file.
-//     * Calculate the CRC for each file and return false if any fail to match.
-//     * 
-//     * @return true if XAPKZipFile is successful
-//     */
-//    void validateXAPKZipFiles() {
-//        AsyncTask<Object, DownloadProgressInfo, Boolean> validationTask = new AsyncTask<Object, DownloadProgressInfo, Boolean>() {
-//
-//            @Override
-//            protected void onPreExecute() {
-////                mDashboard.setVisibility(View.VISIBLE);
-////                mCellMessage.setVisibility(View.GONE);
-////                mStatusText.setText(R.string.text_verifying_download);
-////                mPauseButton.setOnClickListener(new View.OnClickListener() {
-////                    @Override
-////                    public void onClick(View view) {
-////                        mCancelValidation = true;
-////                    }
-////                });
-////                mPauseButton.setText(R.string.text_button_cancel_verify);
-//                super.onPreExecute();
-//            }
-//
-//            @Override
-//            protected Boolean doInBackground(Object... params) {
-//                for (XAPKFile xf : xAPKS) {
-//                    String fileName = Helpers.getExpansionAPKFileName(MainActivity.this, xf.mIsMain, xf.mFileVersion);
-//                    if (!Helpers.doesFileExist(MainActivity.this, fileName, xf.mFileSize, false))
-//                        return false;
-//                    fileName = Helpers.generateSaveFileName(MainActivity.this, fileName);
-//                    ZipResourceFile zrf;
-//                    byte[] buf = new byte[1024 * 256];
-//                    try {
-//                        zrf = new ZipResourceFile(fileName);
-//                        ZipEntryRO[] entries = zrf.getAllEntries();
-//                        /**
-//                         * First calculate the total compressed length
-//                         */
-//                        long totalCompressedLength = 0;
-//                        for (ZipEntryRO entry : entries) {
-//                            totalCompressedLength += entry.mCompressedLength;
-//                        }
-//                        float averageVerifySpeed = 0;
-//                        long totalBytesRemaining = totalCompressedLength;
-//                        long timeRemaining;
-//                        /**
-//                         * Then calculate a CRC for every file in the Zip file,
-//                         * comparing it to what is stored in the Zip directory.
-//                         * Note that for compressed Zip files we must extract
-//                         * the contents to do this comparison.
-//                         */
-//                        for (ZipEntryRO entry : entries) {
-//                            if (-1 != entry.mCRC32) {
-//                                long length = entry.mUncompressedLength;
-//                                CRC32 crc = new CRC32();
-//                                DataInputStream dis = null;
-//                                try {
-//                                    dis = new DataInputStream(zrf.getInputStream(entry.mFileName));
-//
-//                                    long startTime = SystemClock.uptimeMillis();
-//                                    while (length > 0) {
-//                                        int seek = (int) (length > buf.length ? buf.length : length);
-//                                        dis.readFully(buf, 0, seek);
-//                                        crc.update(buf, 0, seek);
-//                                        length -= seek;
-//                                        long currentTime = SystemClock.uptimeMillis();
-//                                        long timePassed = currentTime - startTime;
-//                                        if (timePassed > 0) {
-//                                            float currentSpeedSample = (float) seek / (float) timePassed;
-//                                            if (0 != averageVerifySpeed) {
-//                                                averageVerifySpeed = SMOOTHING_FACTOR * currentSpeedSample + (1 - SMOOTHING_FACTOR) * averageVerifySpeed;
-//                                            } else {
-//                                                averageVerifySpeed = currentSpeedSample;
-//                                            }
-//                                            totalBytesRemaining -= seek;
-//                                            timeRemaining = (long) (totalBytesRemaining / averageVerifySpeed);
-//                                            this.publishProgress(
-//                                                    new DownloadProgressInfo(
-//                                                    		totalCompressedLength, totalCompressedLength - totalBytesRemaining, timeRemaining, averageVerifySpeed)
-//                                                    );
-//                                        }
-//                                        startTime = currentTime;
-//                                        if (mCancelValidation)
-//                                            return true;
-//                                    }
-//                                    if (crc.getValue() != entry.mCRC32) {
-//                                        Log.e(Constants.TAG,"CRC does not match for entry: " + entry.mFileName);
-//                                        Log.e(Constants.TAG,"In file: " + entry.getZipFileName());
-//                                        return false;
-//                                    }
-//                                } finally {
-//                                    if (null != dis) {
-//                                        dis.close();
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                        return false;
+    /**
+     * Used by the async task
+     */
+    private boolean mCancelValidation;
+
+    /**
+     * Go through each of the Expansion APK files and open each as a zip file.
+     * Calculate the CRC for each file and return false if any fail to match.
+     * 
+     * @return true if XAPKZipFile is successful
+     */
+    void validateXAPKZipFiles() {
+        AsyncTask<Object, DownloadProgressInfo, Boolean> validationTask = new AsyncTask<Object, DownloadProgressInfo, Boolean>() {
+
+            @Override
+            protected void onPreExecute() {
+//                mDashboard.setVisibility(View.VISIBLE);
+//                mCellMessage.setVisibility(View.GONE);
+//                mStatusText.setText(R.string.text_verifying_download);
+//                mPauseButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        mCancelValidation = true;
 //                    }
-//                }
-//                return true;
-//            }
-//
-//            @Override
-//            protected void onProgressUpdate(DownloadProgressInfo... values) {
-//                onDownloadProgress(values[0]);
-//                super.onProgressUpdate(values);
-//            }
-//
-//            @Override
-//            protected void onPostExecute(Boolean result) {
-//                if (result) {
-////                    mDashboard.setVisibility(View.VISIBLE);
-////                    mCellMessage.setVisibility(View.GONE);
-////                    mStatusText.setText(R.string.text_validation_complete);
-////                    mPauseButton.setOnClickListener(new View.OnClickListener() {
-////                        @Override
-////                        public void onClick(View view) {
-////                            finish();
-////                        }
-////                    });
-////                    mPauseButton.setText(android.R.string.ok);
-//                } else {
-////                    mDashboard.setVisibility(View.VISIBLE);
-////                    mCellMessage.setVisibility(View.GONE);
-////                    mStatusText.setText(R.string.text_validation_failed);
-////                    mPauseButton.setOnClickListener(new View.OnClickListener() {
-////                        @Override
-////                        public void onClick(View view) {
-////                            finish();
-////                        }
-////                    });
-////                    mPauseButton.setText(android.R.string.cancel);
-//                }
-//                super.onPostExecute(result);
-//            }
-//
-//        };
-//        validationTask.execute(new Object());
-//    }
-//    
+//                });
+//                mPauseButton.setText(R.string.text_button_cancel_verify);
+                super.onPreExecute();
+            }
+
+            @Override
+            protected Boolean doInBackground(Object... params) {
+                for (XAPKFile xf : xAPKS) {
+                    String fileName = Helpers.getExpansionAPKFileName(MainActivity.this, xf.mIsMain, xf.mFileVersion);
+                    if (!Helpers.doesFileExist(MainActivity.this, fileName, xf.mFileSize, false))
+                        return false;
+                    fileName = Helpers.generateSaveFileName(MainActivity.this, fileName);
+                    ZipResourceFile zrf;
+                    byte[] buf = new byte[1024 * 256];
+                    try {
+                        zrf = new ZipResourceFile(fileName);
+                        ZipEntryRO[] entries = zrf.getAllEntries();
+                        /**
+                         * First calculate the total compressed length
+                         */
+                        long totalCompressedLength = 0;
+                        for (ZipEntryRO entry : entries) {
+                            totalCompressedLength += entry.mCompressedLength;
+                        }
+                        float averageVerifySpeed = 0;
+                        long totalBytesRemaining = totalCompressedLength;
+                        long timeRemaining;
+                        /**
+                         * Then calculate a CRC for every file in the Zip file,
+                         * comparing it to what is stored in the Zip directory.
+                         * Note that for compressed Zip files we must extract
+                         * the contents to do this comparison.
+                         */
+                        for (ZipEntryRO entry : entries) {
+                            if (-1 != entry.mCRC32) {
+                                long length = entry.mUncompressedLength;
+                                CRC32 crc = new CRC32();
+                                DataInputStream dis = null;
+                                try {
+                                    dis = new DataInputStream(zrf.getInputStream(entry.mFileName));
+
+                                    long startTime = SystemClock.uptimeMillis();
+                                    while (length > 0) {
+                                        int seek = (int) (length > buf.length ? buf.length : length);
+                                        dis.readFully(buf, 0, seek);
+                                        crc.update(buf, 0, seek);
+                                        length -= seek;
+                                        long currentTime = SystemClock.uptimeMillis();
+                                        long timePassed = currentTime - startTime;
+                                        if (timePassed > 0) {
+                                            float currentSpeedSample = (float) seek / (float) timePassed;
+                                            if (0 != averageVerifySpeed) {
+                                                averageVerifySpeed = SMOOTHING_FACTOR * currentSpeedSample + (1 - SMOOTHING_FACTOR) * averageVerifySpeed;
+                                            } else {
+                                                averageVerifySpeed = currentSpeedSample;
+                                            }
+                                            totalBytesRemaining -= seek;
+                                            timeRemaining = (long) (totalBytesRemaining / averageVerifySpeed);
+                                            this.publishProgress(
+                                                    new DownloadProgressInfo(
+                                                    		totalCompressedLength, totalCompressedLength - totalBytesRemaining, timeRemaining, averageVerifySpeed)
+                                                    );
+                                        }
+                                        startTime = currentTime;
+                                        if (mCancelValidation)
+                                            return true;
+                                    }
+                                    if (crc.getValue() != entry.mCRC32) {
+                                        Log.e(Constants.TAG,"CRC does not match for entry: " + entry.mFileName);
+                                        Log.e(Constants.TAG,"In file: " + entry.getZipFileName());
+                                        return false;
+                                    }
+                                } finally {
+                                    if (null != dis) {
+                                        dis.close();
+                                    }
+                                }
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            @Override
+            protected void onProgressUpdate(DownloadProgressInfo... values) {
+                onDownloadProgress(values[0]);
+                super.onProgressUpdate(values);
+            }
+
+            @Override
+            protected void onPostExecute(Boolean result) {
+                if (result) {
+//                    mDashboard.setVisibility(View.VISIBLE);
+//                    mCellMessage.setVisibility(View.GONE);
+//                    mStatusText.setText(R.string.text_validation_complete);
+//                    mPauseButton.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            finish();
+//                        }
+//                    });
+//                    mPauseButton.setText(android.R.string.ok);
+                } else {
+//                    mDashboard.setVisibility(View.VISIBLE);
+//                    mCellMessage.setVisibility(View.GONE);
+//                    mStatusText.setText(R.string.text_validation_failed);
+//                    mPauseButton.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            finish();
+//                        }
+//                    });
+//                    mPauseButton.setText(android.R.string.cancel);
+                }
+                super.onPostExecute(result);
+            }
+
+        };
+        validationTask.execute(new Object());
+    }
+    
     /**
      * If the download isn't present, we initialize the download UI. This ties
      * all of the controls into the remote service calls.
@@ -321,11 +324,20 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		
 	    super.onCreate(savedInstanceState);
+	    
+	    // Request for progress bar and indeterminate spin
+	    requestWindowFeature(Window.FEATURE_PROGRESS);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 	    
 	    initializeDownloadUI();
 	
 	    setContentView(R.layout.launch_layout);
+	    
+	    // Hide indeterminate spin on initialization
+		setSupportProgressBarIndeterminateVisibility(false);
+
 	    
 	    ImageButton startBtn = (ImageButton) findViewById(R.id.startBtn);
 	    startBtn.setOnClickListener(new OnClickListener() {
@@ -393,7 +405,19 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
         .setIcon(R.drawable.ic_navigation_refresh)
         .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		
+		
 		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		Toast.makeText(this, "Got click: " + item.toString(), Toast.LENGTH_SHORT).show();
+		
+		// Show the Indeterminate spin
+		setSupportProgressBarIndeterminateVisibility(true);
+
+        return true;
 	}
 
 	@Override
