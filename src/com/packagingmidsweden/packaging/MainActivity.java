@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
@@ -41,7 +42,11 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
 
 	private static final String LOG_TAG = "LVLDownloader";
 	private int mState;
+	
+	// ActionMode instance
+	ActionMode mMode;
 
+	// Handle the download interactions
     private IDownloaderService mRemoteService;
     
     private IStub mDownloaderClientStub;
@@ -413,9 +418,10 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
 		Toast.makeText(this, "Got click: " + item.toString(), Toast.LENGTH_SHORT).show();
+		mMode = startActionMode(new AnActionModeOfEpicProportions());
 		
 		// Show the Indeterminate spin
-		setSupportProgressBarIndeterminateVisibility(true);
+//		setSupportProgressBarIndeterminateVisibility(true);
 
         return true;
 	}
@@ -542,6 +548,56 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
             mDownloaderClientStub.connect(this);
         }
         super.onStart();
+    }
+    
+    private final class AnActionModeOfEpicProportions implements ActionMode.Callback {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            //Used to put dark icons on light action bar
+//            boolean isLight = SampleList.THEME == R.style.Theme_Sherlock_Light;
+//
+//            menu.add("Save")
+//                .setIcon(isLight ? R.drawable.ic_compose_inverse : R.drawable.ic_compose)
+//                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+//
+//            menu.add("Search")
+//                .setIcon(isLight ? R.drawable.ic_search_inverse : R.drawable.ic_search)
+//                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+//
+//            menu.add("Refresh")
+//                .setIcon(isLight ? R.drawable.ic_refresh_inverse : R.drawable.ic_refresh)
+//                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+//
+//            menu.add("Save")
+//                .setIcon(isLight ? R.drawable.ic_compose_inverse : R.drawable.ic_compose)
+//                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+//
+//            menu.add("Search")
+//                .setIcon(isLight ? R.drawable.ic_search_inverse : R.drawable.ic_search)
+//                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+//
+//            menu.add("Refresh")
+//                .setIcon(isLight ? R.drawable.ic_refresh_inverse : R.drawable.ic_refresh)
+//                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            Toast.makeText(MainActivity.this, "Got click: " + item, Toast.LENGTH_SHORT).show();
+            mode.finish();
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+        }
     }
 
 }
