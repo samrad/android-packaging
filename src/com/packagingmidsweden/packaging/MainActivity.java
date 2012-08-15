@@ -88,7 +88,7 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
             new XAPKFile(
                     true, // true signifies a main file
                     150, // APK version
-                    687801613L // the length of the file in bytes
+                    1439418L // the length of the file in bytes
             )
 //            ,
 //            new XAPKFile(
@@ -244,6 +244,8 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
             @Override
             protected void onPostExecute(Boolean result) {
                 if (result) {
+                	
+                	Log.e(LOG_TAG, "Validated");
 //                    mDashboard.setVisibility(View.VISIBLE);
 //                    mCellMessage.setVisibility(View.GONE);
 //                    mStatusText.setText(R.string.text_validation_complete);
@@ -255,6 +257,8 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
 //                    });
 //                    mPauseButton.setText(android.R.string.ok);
                 } else {
+                	
+                	Log.e(LOG_TAG, "Invalid");
 //                    mDashboard.setVisibility(View.VISIBLE);
 //                    mCellMessage.setVisibility(View.GONE);
 //                    mStatusText.setText(R.string.text_validation_failed);
@@ -279,7 +283,6 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
      */
     private void initializeDownloadUI() {
         mDownloaderClientStub = DownloaderClientMarshaller.CreateStub(this, DownloaderService.class);
-        Log.e(LOG_TAG, "mDownloaderClientStub");
 //        setContentView(R.layout.main);
 
 //        mPB = (ProgressBar) findViewById(R.id.progressBar);
@@ -362,7 +365,7 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
         if (!expansionFilesDelivered()) {
 
             try {
-            	
+//            	Log.e(LOG_TAG, "Not Delivered");
                 Intent launchIntent = MainActivity.this.getIntent();
                 Intent intentToLaunchThisActivityFromNotification = new Intent(MainActivity.this, MainActivity.this.getClass());
                 intentToLaunchThisActivityFromNotification.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -379,10 +382,12 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
                 		0, intentToLaunchThisActivityFromNotification, PendingIntent.FLAG_UPDATE_CURRENT);
                 
                 // Request to start the download
-                int startResult = DownloaderClientMarshaller.startDownloadServiceIfRequired(this, pendingIntent, MainActivity.class);
+                int startResult = DownloaderClientMarshaller.startDownloadServiceIfRequired(this, pendingIntent, DownloaderService.class);
+//                Log.e(LOG_TAG, "Download Started" + String.valueOf(startResult));
 
                 if (startResult != DownloaderClientMarshaller.NO_DOWNLOAD_REQUIRED) {
                     // The DownloaderService has started downloading the files, show progress
+//                	Log.e(LOG_TAG, "Started");
                     initializeDownloadUI();
                     return;
                 }
@@ -394,7 +399,8 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
             }
 
         } else {
-//            validateXAPKZipFiles();
+        	Log.e(LOG_TAG, "Start Validating");
+            validateXAPKZipFiles();
         }
 	    
 	}
@@ -403,11 +409,11 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
 	public boolean onCreateOptionsMenu(Menu menu) {
 		
 		menu.add("About")
-		.setIcon(R.drawable.ic_action_about)
+		.setIcon(R.drawable.ic_action_about_dark)
         .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		
 		menu.add("Update")
-        .setIcon(R.drawable.ic_navigation_refresh)
+        .setIcon(R.drawable.ic_navigation_refresh_dark)
         .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		
 		
@@ -512,6 +518,15 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
 	@Override
 	public void onDownloadProgress(DownloadProgressInfo progress) {
 		
+		progress.mOverallTotal = progress.mOverallTotal;
+		int m = (int)(progress.mOverallProgress * 100 / progress.mOverallTotal);
+		
+		Log.d(LOG_TAG, Long.toString(progress.mOverallProgress));
+		
+		//Normalize our progress along the progress bar's scale
+        int mProgress = (Window.PROGRESS_END - Window.PROGRESS_START) / 100 * m;      
+        setSupportProgress(mProgress);
+        
 //		mAverageSpeed.setText(getString(R.string.kilobytes_per_second, Helpers.getSpeedString(progress.mCurrentSpeed)));
 //        mTimeRemaining.setText(getString(R.string.time_remaining, Helpers.getTimeRemaining(progress.mTimeRemaining)));
 //

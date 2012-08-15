@@ -4,7 +4,7 @@
       android:versionCode="150"
       android:versionName="1.5">
       
-    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15"/>
+    <uses-sdk android:minSdkVersion="8"/>
       
     <!-- 
       NOTE 1: The setting 'android:launchMode="singleTask"' makes sure
@@ -56,7 +56,7 @@
         <activity 
             android:name=".MainActivity" 
             android:label="@string/app_main"
-            android:theme="@style/Theme.Sherlock.Light">
+            android:theme="@style/Theme.Sherlock">
             
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
