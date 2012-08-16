@@ -206,9 +206,13 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
                                             }
                                             totalBytesRemaining -= seek;
                                             timeRemaining = (long) (totalBytesRemaining / averageVerifySpeed);
-                                            this.publishProgress(
-                                                    new DownloadProgressInfo(
-                                                    		totalCompressedLength, totalCompressedLength - totalBytesRemaining, timeRemaining, averageVerifySpeed)
+                                            
+                                            // Publish the progress
+                                            this.publishProgress(new DownloadProgressInfo(
+                                                    		totalCompressedLength, 
+                                                    		totalCompressedLength - totalBytesRemaining, 
+                                                    		timeRemaining, 
+                                                    		averageVerifySpeed)
                                                     );
                                         }
                                         startTime = currentTime;
@@ -227,6 +231,10 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
                                 }
                             }
                         }
+                        
+                      //Set progress bar finished
+                      this.publishProgress(new DownloadProgressInfo(totalCompressedLength,totalCompressedLength,0L,averageVerifySpeed));
+                        
                     } catch (IOException e) {
                         e.printStackTrace();
                         return false;
@@ -245,7 +253,7 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
             protected void onPostExecute(Boolean result) {
                 if (result) {
                 	
-                	Log.e(LOG_TAG, "Validated");
+                	Log.d(LOG_TAG, "Validated");
 //                    mDashboard.setVisibility(View.VISIBLE);
 //                    mCellMessage.setVisibility(View.GONE);
 //                    mStatusText.setText(R.string.text_validation_complete);
@@ -494,7 +502,7 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
                 showDashboard = false;
                 paused = false;
                 indeterminate = false;
-//                validateXAPKZipFiles();
+                validateXAPKZipFiles();
                 return;
             default:
                 paused = true;
@@ -519,12 +527,12 @@ public class MainActivity extends SherlockActivity implements IDownloaderClient 
 	public void onDownloadProgress(DownloadProgressInfo progress) {
 		
 		progress.mOverallTotal = progress.mOverallTotal;
-		int m = (int)(progress.mOverallProgress * 100 / progress.mOverallTotal);
+		int p = (int)((progress.mOverallProgress >> 8) * 100 / (progress.mOverallTotal >> 8));
 		
-		Log.d(LOG_TAG, Long.toString(progress.mOverallProgress));
+//		Log.d(LOG_TAG, Long.toString(progress.mOverallProgress >> 8) + " / " + Long.toString(progress.mOverallTotal >> 8) );
 		
 		//Normalize our progress along the progress bar's scale
-        int mProgress = (Window.PROGRESS_END - Window.PROGRESS_START) / 100 * m;      
+        int mProgress = (Window.PROGRESS_END - Window.PROGRESS_START) / 100 * p;      
         setSupportProgress(mProgress);
         
 //		mAverageSpeed.setText(getString(R.string.kilobytes_per_second, Helpers.getSpeedString(progress.mCurrentSpeed)));
