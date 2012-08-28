@@ -156,7 +156,8 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 		try {
 			
 			// No need to re-scale the texture 
-			mTexture = new Texture(BitmapHelper.loadImage(mContext.getAssets().open("tetraTexture1.jpg")));
+//			mTexture = new Texture(BitmapHelper.loadImage(mContext.getAssets().open("tetraTexture1.jpg")));
+			mTexture = new Texture(BitmapHelper.loadImage(mContext.getAssets().open("newBox.jpg")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -166,6 +167,7 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 		// Memory related
 		mTexture.enable4bpp(true);
 //		mTexture.setMipmap(true);
+//		mTexture.removeAlpha();
 		
 		// Do not load texture if it's already loaded
 		if(TextureManager.getInstance().containsTexture("texture")) {
@@ -267,18 +269,19 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
         		
         	} else if (MODEL_ANIMATION){
         		
-//        		// Start the animation
-//        		mModel.animate(mAnimation);
-//    		
-//        		// Animation speed
+        		// Start the animation
+        		mModel.animate(mAnimation);
+    		
+        		// Animation speed
 //        		mAnimation += 0.05;
-//    		
-//        		// Replay the animation
-//        		if (mAnimation >= 1){
-//        			mAnimation = 0;
-//        		} 
-//        		
-        		mModel.rotateZ(0.15f);
+        		mAnimation += 0.01;
+    		
+        		// Replay the animation
+        		if (mAnimation >= 1){
+        			mAnimation = 0;
+        		} 
+        		
+//        		mModel.rotateZ(0.15f);
         		
             }
             
@@ -371,7 +374,9 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 			// Loading an animated MD2 model from asset folder
 			try {
 //				mModel =  Loader.loadMD2(mContext.getAssets().open("Tetra(stand).md2"),2.8f);
-				mModel =  Loader.loadMD2(mContext.getAssets().open("Flaska21.md2"),30.8f);
+//				mModel =  Loader.loadMD2(mContext.getAssets().open("Flaska21.md2"),30.8f);
+//				mModel =  Loader.loadMD2(mContext.getAssets().open("Box.md2"),8f);
+				mModel =  Loader.loadMD2(mContext.getAssets().open("newBox.md2"),5f);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -390,7 +395,8 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 			
 			// Model settings
 //			mModel.setTexture("texture");
-			mModel.setTexture("arrow");
+			mModel.setTexture("texture");
+//			mModel.setTexture("arrow");
 		 	mModel.setLighting(Object3D.LIGHTING_ALL_ENABLED);
 			mModel.strip();
 			mModel.build();
@@ -402,7 +408,8 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 			// Light's position
 			mSunVector = new SimpleVector();
 			mSunVector.set(mModel.getTransformedCenter());
-			mSunVector.y -= 150;
+//			mSunVector.y -= 150;
+			mSunVector.y -= 300;
 			mSunVector.z -= 100;
 			mSunVector.x += 100;
 			mSun.setPosition(mSunVector);
