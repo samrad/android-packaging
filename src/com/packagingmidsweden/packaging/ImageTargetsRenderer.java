@@ -20,10 +20,19 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.packagingmidsweden.packaging.R;
 import com.qualcomm.QCAR.QCAR;
@@ -55,7 +64,7 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
     private boolean TRACKABLE_FOUND   = false;  // Trackable found but the 3D model is not ready to render
     private boolean LOADING_MODEL     = false;  // MD2 model is being loaded
     private boolean MODEL_READY 	  = false;  // MD2 is ready to render
-    protected boolean MODEL_ANIMATION	  = false;  // Whether the model is animation or not
+    protected boolean MODEL_ANIMATION	  = false;  // True is the model is animating
   
 	
     public boolean mIsActive = false;
@@ -67,7 +76,7 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 	private FrameBuffer mFrameBuffer = null;
 	private World mWorld = null;
 	private RGBColor mBackground = new RGBColor(0, 0, 0, 0);
-	private Object3D mArrow = null;
+//	private Object3D mArrow = null;
 	private int fps = 0;
 	private Light mSun = null;
 	private float[] mFieldofView;
@@ -150,12 +159,12 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 		
 		// Create a solid color texture
 		Texture mTexture = null;
-		Texture mArrowTexture = null;
-		mArrowTexture = new Texture(10, 10, new RGBColor(150, 150, 150));
+//		Texture mArrowTexture = null;
+//		mArrowTexture = new Texture(10, 10, new RGBColor(150, 150, 150));
 		
 		try {
 			
-			// No need to re-scale the texture 
+			// Texture Loading (No need to re-scale the texture) 
 //			mTexture = new Texture(BitmapHelper.loadImage(mContext.getAssets().open("tetraTexture1.jpg")));
 			mTexture = new Texture(BitmapHelper.loadImage(mContext.getAssets().open("newBox.jpg")));
 		} catch (IOException e) {
@@ -178,13 +187,13 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 			TextureManager.getInstance().replaceTexture("texture", mTexture);
 			
 			// Arrow Texture
-			TextureManager.getInstance().unloadTexture(mFrameBuffer, 
-					TextureManager.getInstance().getTexture("texture"));
-			TextureManager.getInstance().replaceTexture("texture", mTexture);
+//			TextureManager.getInstance().unloadTexture(mFrameBuffer, 
+//					TextureManager.getInstance().getTexture("texture"));
+//			TextureManager.getInstance().replaceTexture("texture", mTexture);
 			
 		} else {
 			TextureManager.getInstance().addTexture("texture", mTexture);
-			TextureManager.getInstance().addTexture("arrow", mArrowTexture);
+//			TextureManager.getInstance().addTexture("arrow", mArrowTexture);
 		}
 		
 //		// Load MD2 model in background
@@ -193,21 +202,21 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 		
 		
 		// Loading arrow 3D model
-		try {
-			mArrow =  Loader.loadMD2(mContext.getAssets().open("Arrow1.md2"),1f);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		// Model settings (arrow)
-		mArrow.calcTextureWrap();
-		mArrow.setTexture("arrow");
-		mArrow.setLighting(Object3D.LIGHTING_ALL_ENABLED);
-		mArrow.setTransparency(10);
-		mArrow.strip();
-		mArrow.build();
-
-		mWorld.addObject(mArrow);
+//		try {
+//			mArrow =  Loader.loadMD2(mContext.getAssets().open("Arrow1.md2"),1f);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		
+//		// Model settings (arrow)
+//		mArrow.calcTextureWrap();
+//		mArrow.setTexture("arrow");
+//		mArrow.setLighting(Object3D.LIGHTING_ALL_ENABLED);
+//		mArrow.setTransparency(10);
+//		mArrow.strip();
+//		mArrow.build();
+//
+//		mWorld.addObject(mArrow);
 
 		mCamera = mWorld.getCamera();
 		mCamera.setFOV(mFieldofView[0]);
@@ -215,7 +224,7 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 		
 		// Light position
 		mSunVector = new SimpleVector();
-		mSunVector.set(mArrow.getTransformedCenter());
+//		mSunVector.set(mArrow.getTransformedCenter());
 		mSunVector.y -= 150;
 		mSunVector.z -= 100;
 		mSunVector.x += 100;
@@ -265,7 +274,7 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
         	// If model is not ready to render
         	if (!MODEL_READY) {
         		
-        		mArrow.rotateZ(-0.15f);
+//        		mArrow.rotateZ(-0.15f);
         		
         	} else if (MODEL_ANIMATION){
         		
@@ -274,7 +283,7 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
     		
         		// Animation speed
 //        		mAnimation += 0.05;
-        		mAnimation += 0.01;
+        		mAnimation += 0.005;
     		
         		// Replay the animation
         		if (mAnimation >= 1){
@@ -346,8 +355,8 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
     		mModelLoader.cancel(true);
     	
     	TextureManager.getInstance().removeTexture("texture");
-    	TextureManager.getInstance().removeTexture("arrow");
-    	mArrow = null;
+//    	TextureManager.getInstance().removeTexture("arrow");
+//    	mArrow = null;
         mModel = null;
         mFrameBuffer.freeMemory();
         mFrameBuffer.dispose();
@@ -361,10 +370,25 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
     
     /** Asynchronous task to load MD2 models in background */
     private class ModelLoader extends AsyncTask<Void, Void, Void> {
-
+    	
+    	private Activity activity = (Activity) mContext;
+    	private ImageView loadingSpinner;
     	
 		@Override
 		protected void onPreExecute() {
+			
+			// Show Progress Spinner on UI thread
+			activity.runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					
+					loadingSpinner = (ImageView) activity.findViewById(R.id.loadingSpin);
+					loadingSpinner.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.spinner));
+					loadingSpinner.setImageResource(R.drawable.ic_navigation_refresh_green);
+
+				}
+			});
 			super.onPreExecute();
 		}
 		
@@ -377,6 +401,8 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 //				mModel =  Loader.loadMD2(mContext.getAssets().open("Flaska21.md2"),30.8f);
 //				mModel =  Loader.loadMD2(mContext.getAssets().open("Box.md2"),8f);
 				mModel =  Loader.loadMD2(mContext.getAssets().open("newBox.md2"),5f);
+				
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -420,6 +446,22 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 			
 			// Loading has been done
 			MODEL_READY = true;
+			
+			// Remove arrow from world after model is loaded
+//			mArrow.setVisibility(false);
+			
+			// Show Progress Spinner on UI thread
+			activity.runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					
+					loadingSpinner = (ImageView) activity.findViewById(R.id.loadingSpin);
+//					loadingSpinner.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.spinner));
+					loadingSpinner.setImageResource(R.drawable.ic_navigation_refresh_dark);
+
+				}
+			});
 			
 			Log.d("Background Task", "3D model has been Loaded");
 			

@@ -35,6 +35,7 @@ import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.packagingmidsweden.packaging.R;
@@ -93,6 +94,10 @@ public class ImageTargets extends Activity
     
     // The current application status
     private int mAppStatus = APPSTATUS_UNINITED;
+    
+    // Camera overlay controls
+    private ImageButton animateBtn;
+//    private ProgressBar loadingProgress; 
     
     // The async tasks to initialize the QCAR SDK 
     /**
@@ -635,7 +640,9 @@ public class ImageTargets extends Activity
                 setProjectionMatrix();
                 
                 // Camera Control Listener
-                ImageButton animateBtn =  (ImageButton) findViewById(R.id.animateBtn);
+                animateBtn =  (ImageButton) findViewById(R.id.animateBtn);
+//                loadingProgress = (ProgressBar) findViewById(R.id.loadingProgress);
+//                loadingProgress.setVisibility(View.INVISIBLE);
                 animateBtn.setOnClickListener(new OnClickListener() {
       			
       			@Override
@@ -643,13 +650,16 @@ public class ImageTargets extends Activity
       				if (mRenderer.MODEL_ANIMATION) {
       					
       					mRenderer.MODEL_ANIMATION = false;
+      					animateBtn.setImageResource(R.drawable.ic_play_animation_light);
       					Toast.makeText(ImageTargets.this, "Animation Stopped", Toast.LENGTH_SHORT).show();
+//      					loadingProgress.setVisibility(View.INVISIBLE);
       					
       				} else {
       					
       					mRenderer.MODEL_ANIMATION = true;
+      					animateBtn.setImageResource(R.drawable.ic_pause_animation_light);
       					Toast.makeText(ImageTargets.this, "Animation Started", Toast.LENGTH_SHORT).show();
-      					
+//      					loadingProgress.setVisibility(View.VISIBLE);
       				}
       			}
       		});
@@ -739,7 +749,8 @@ public class ImageTargets extends Activity
 //        mGlView.setEGLContextClientVersion(2);
         mGlView.init(mQCARFlags, translucent, depthSize, stencilSize);
         
-        mRenderer = new ImageTargetsRenderer(this.getApplicationContext());
+//        mRenderer = new ImageTargetsRenderer(this.getApplicationContext());
+        mRenderer = new ImageTargetsRenderer(ImageTargets.this);
         mGlView.setRenderer(mRenderer);
  
     }
@@ -865,5 +876,6 @@ public class ImageTargets extends Activity
         }
         
         return false;
-    }    
+    }
+    
 }

@@ -4,5 +4,7 @@
     <color name="LightGrey">#e9eae5</color>
     <color name="DarkGrey">#727471</color>
     <color name="Cyan">#2db3fc</color>
+    <color name="GreyTrans">#30cacaca</color>
+    <color name="Transparent">#00000000</color>
     
 </resources>
