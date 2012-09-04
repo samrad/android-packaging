@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QCARConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="qcar_config.xsd">
+    <Tracking>
+        <ImageTarget size="70.052986 191" name="Tetra"/>
+        <ImageTarget size="89.847214 195" name="Sugar"/>
+    </Tracking>
+</QCARConfig>

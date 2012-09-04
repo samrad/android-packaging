@@ -206,7 +206,7 @@ Java_com_packagingmidsweden_packaging_ImageTargets_loadTrackerData(JNIEnv *, job
     }
 
     // Load the data sets:
-    if (!dataSetStonesAndChips->load("StonesAndChips.xml", QCAR::DataSet::STORAGE_APPRESOURCE))
+    if (!dataSetStonesAndChips->load("Packaging.xml", QCAR::DataSet::STORAGE_APPRESOURCE))
     {
         LOG("Failed to load data set.");
         return 0;

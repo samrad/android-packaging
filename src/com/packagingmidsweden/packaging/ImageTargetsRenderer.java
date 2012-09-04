@@ -323,9 +323,16 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
         	 // Store new Trackable's name
         	 mTrackableName = name;
         	 
+        	 boolean isRunning = (mModelLoader!=null && 
+        			 (mModelLoader.getStatus() != ModelLoader.Status.FINISHED)) ? true: false;
+        	 
+        	 if (isRunning){
+        		 mModelLoader.cancel(true);
+        	 }
+        		 
         	 // Start the AsyncTaks to load MD2 in background
         	 mModelLoader =  new ModelLoader();
-        	 mModelLoader.execute();
+        	 mModelLoader.execute(name);
         	 
          }
   
@@ -351,8 +358,9 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
     protected void cleanRenderer() {
     	
     	// Cancel AsyncTask onDestroy
-    	if(mModelLoader!= null && !mModelLoader.isCancelled())
+    	if(mModelLoader!= null && (mModelLoader.getStatus() != ModelLoader.Status.FINISHED)) {
     		mModelLoader.cancel(true);
+    	}
     	
     	TextureManager.getInstance().removeTexture("texture");
 //    	TextureManager.getInstance().removeTexture("arrow");
@@ -369,13 +377,24 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
     
     
     /** Asynchronous task to load MD2 models in background */
-    private class ModelLoader extends AsyncTask<Void, Void, Void> {
+    private class ModelLoader extends AsyncTask<String, Void, Void> {
     	
     	private Activity activity = (Activity) mContext;
     	private ImageView loadingSpinner;
-    	
+    	private String mName;
+
 		@Override
 		protected void onPreExecute() {
+			
+			// Set the flag
+			MODEL_READY = false;
+			
+			// Clear Object3D if has been previously used 
+			if(mModel!=null) {
+				mModel.clearAnimation();
+				mModel.clearObject();
+			}
+			
 			
 			// Show Progress Spinner on UI thread
 			activity.runOnUiThread(new Runnable() {
@@ -393,14 +412,20 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 		}
 		
 		@Override
-		protected Void doInBackground(Void... params) {
+		protected Void doInBackground(String... params) {
+			
+			// Passed Parameter
+			Log.e("AsyncTask", params[0].toString());
+			
+			// Model file name
+			mName = params[0].toLowerCase() + ".md2" ;
 			
 			// Loading an animated MD2 model from asset folder
 			try {
 //				mModel =  Loader.loadMD2(mContext.getAssets().open("Tetra(stand).md2"),2.8f);
 //				mModel =  Loader.loadMD2(mContext.getAssets().open("Flaska21.md2"),30.8f);
 //				mModel =  Loader.loadMD2(mContext.getAssets().open("Box.md2"),8f);
-				mModel =  Loader.loadMD2(mContext.getAssets().open("newBox.md2"),5f);
+				mModel =  Loader.loadMD2(mContext.getAssets().open(mName),5f);
 				
 				
 			} catch (IOException e) {
@@ -444,7 +469,7 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 			MemoryHelper.compact();
 			
 			
-			// Loading has been done
+			// Model loading has been done
 			MODEL_READY = true;
 			
 			// Remove arrow from world after model is loaded
