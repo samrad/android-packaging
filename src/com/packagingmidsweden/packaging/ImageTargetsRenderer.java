@@ -23,6 +23,7 @@ import javax.microedition.khronos.opengles.GL11;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.Resources;
 import android.opengl.GLSurfaceView;
 import android.os.AsyncTask;
 import android.os.Looper;
@@ -82,12 +83,25 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 	private float[] mFieldofView;
 	private Matrix mMatrix = new Matrix(); 
 	private SimpleVector mSunVector;
-	private float mAnimation = 0;
 	
+	// Animation controller and speed (start frame to end frame)
+	private float mAnimation = 0;
+	private float mFPS = 1;
+	
+	// Initial scale of the object
+	private float mScale = 1;
+	
+	// World's camera
 	private Camera mCamera = null;
 	
+	// Trackable's name (comes from native code)
 	private String mTrackableName = "";
+	
+	// 3D model and its texture
 	private Object3D mModel = null;
+	private Texture mTexture = null;
+	
+	// An AsyncTask to load models on another thread
 	private ModelLoader mModelLoader;
 	
 	// The actual camera resolution which QCAR uses (used to set the framebuffer size) 
@@ -158,7 +172,7 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 		mSun.setIntensity(255, 255, 255);
 		
 		// Create a solid color texture
-		Texture mTexture = null;
+//		Texture mTexture = null;
 //		Texture mArrowTexture = null;
 //		mArrowTexture = new Texture(10, 10, new RGBColor(150, 150, 150));
 		
@@ -166,35 +180,35 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 			
 			// Texture Loading (No need to re-scale the texture) 
 //			mTexture = new Texture(BitmapHelper.loadImage(mContext.getAssets().open("tetraTexture1.jpg")));
-			mTexture = new Texture(BitmapHelper.loadImage(mContext.getAssets().open("newBox.jpg")));
-		} catch (IOException e) {
-			e.printStackTrace();
+//			mTexture = new Texture(BitmapHelper.loadImage(mContext.getAssets().open("newBox.jpg")));
+//		} catch (IOException e) {
+//			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 		// Memory related
-		mTexture.enable4bpp(true);
+//		mTexture.enable4bpp(true);
 //		mTexture.setMipmap(true);
 //		mTexture.removeAlpha();
 		
-		// Do not load texture if it's already loaded
-		if(TextureManager.getInstance().containsTexture("texture")) {
-			
-			// Model Texture
-			TextureManager.getInstance().unloadTexture(mFrameBuffer, 
-					TextureManager.getInstance().getTexture("texture"));
-			TextureManager.getInstance().replaceTexture("texture", mTexture);
-			
-			// Arrow Texture
+//		// Do not load texture if it's already loaded
+//		if(TextureManager.getInstance().containsTexture("texture")) {
+//			
+//			// Model Texture
 //			TextureManager.getInstance().unloadTexture(mFrameBuffer, 
 //					TextureManager.getInstance().getTexture("texture"));
 //			TextureManager.getInstance().replaceTexture("texture", mTexture);
-			
-		} else {
-			TextureManager.getInstance().addTexture("texture", mTexture);
-//			TextureManager.getInstance().addTexture("arrow", mArrowTexture);
-		}
+//			
+//			// Arrow Texture
+////			TextureManager.getInstance().unloadTexture(mFrameBuffer, 
+////					TextureManager.getInstance().getTexture("texture"));
+////			TextureManager.getInstance().replaceTexture("texture", mTexture);
+//			
+//		} else {
+//			TextureManager.getInstance().addTexture("texture", mTexture);
+////			TextureManager.getInstance().addTexture("arrow", mArrowTexture);
+//		}
 		
 //		// Load MD2 model in background
 //		mModelLoader =  new ModelLoader();
@@ -283,7 +297,7 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
     		
         		// Animation speed
 //        		mAnimation += 0.05;
-        		mAnimation += 0.005;
+        		mAnimation += mFPS;
     		
         		// Replay the animation
         		if (mAnimation >= 1){
@@ -381,13 +395,28 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
     	
     	private Activity activity = (Activity) mContext;
     	private ImageView loadingSpinner;
-    	private String mName;
+    	private String mFileNames[] = new String[2];
 
 		@Override
 		protected void onPreExecute() {
 			
 			// Set the flag
 			MODEL_READY = false;
+			
+			// Reset animation
+			mAnimation = 0;
+			
+			// Temporary
+			if (mTrackableName.equalsIgnoreCase("sugar")) {
+				mScale = 4f;
+				mFPS = 0.005f;
+			} else if (mTrackableName.equalsIgnoreCase("tetra")) {
+				mScale = 2f;
+				mFPS = 0.05f;
+			} else if (mTrackableName.equalsIgnoreCase("drawer")) {
+				mScale = 4f;
+				mFPS = 0.01f;
+			}
 			
 			// Clear Object3D if has been previously used 
 			if(mModel!=null) {
@@ -417,18 +446,25 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 			// Passed Parameter
 			Log.e("AsyncTask", params[0].toString());
 			
-			// Model file name
-			mName = params[0].toLowerCase() + ".md2" ;
+			// Model and texture file name
+			mFileNames[0] = params[0].toLowerCase() + ".md2" ;
+			mFileNames[1] = params[0].toLowerCase() + ".jpg" ;
 			
 			// Loading an animated MD2 model from asset folder
 			try {
 //				mModel =  Loader.loadMD2(mContext.getAssets().open("Tetra(stand).md2"),2.8f);
 //				mModel =  Loader.loadMD2(mContext.getAssets().open("Flaska21.md2"),30.8f);
 //				mModel =  Loader.loadMD2(mContext.getAssets().open("Box.md2"),8f);
-				mModel =  Loader.loadMD2(mContext.getAssets().open(mName),5f);
-				
-				
+				mModel =  Loader.loadMD2(mContext.getAssets().open(mFileNames[0]),mScale);
+				mTexture = new Texture(BitmapHelper.loadImage(mContext.getAssets().open(mFileNames[1])));
+//				mTexture = new Texture(activity.getResources().openRawResource(R.raw.sugar), true);
+
+							
+				// Problem loading files
 			} catch (IOException e) {
+				Log.e("ModelLoader AsyncTask", "Problem Loading Model or Texture");
+				e.printStackTrace();
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			
@@ -444,10 +480,27 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			
+			// If texture is successfully loaded
+			if(mTexture!=null) {
+				mTexture.enable4bpp(true);
+			}
+			
+			// Replacing the previous texture if exists
+			if(TextureManager.getInstance().containsTexture("texture")) {
+				
+				// Model Texture
+				TextureManager.getInstance().unloadTexture(mFrameBuffer,TextureManager.getInstance().getTexture("texture"));
+				TextureManager.getInstance().replaceTexture("texture", mTexture);
+				
+			} else {
+				TextureManager.getInstance().addTexture("texture", mTexture);
+			}
+			
 			// Model settings
 //			mModel.setTexture("texture");
 			mModel.setTexture("texture");
 //			mModel.setTexture("arrow");
+//			mModel.setTransparency(3);
 		 	mModel.setLighting(Object3D.LIGHTING_ALL_ENABLED);
 			mModel.strip();
 			mModel.build();
@@ -482,7 +535,7 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 				public void run() {
 					
 					loadingSpinner = (ImageView) activity.findViewById(R.id.loadingSpin);
-//					loadingSpinner.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.spinner));
+					loadingSpinner.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.spinner));
 					loadingSpinner.setImageResource(R.drawable.ic_navigation_refresh_dark);
 
 				}
