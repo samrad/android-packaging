@@ -3,6 +3,6 @@
     <Tracking>
         <ImageTarget size="70.052986 191" name="Tetra"/>
         <ImageTarget size="89.847214 195" name="Sugar"/>
-        <ImageTarget size="450 292.813812" name="drawer"/>
+        <ImageTarget size="100 100" name="drawer"/>
     </Tracking>
 </QCARConfig>

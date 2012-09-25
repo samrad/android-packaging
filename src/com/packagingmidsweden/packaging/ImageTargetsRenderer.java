@@ -414,7 +414,7 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer
 				mScale = 2f;
 				mFPS = 0.05f;
 			} else if (mTrackableName.equalsIgnoreCase("drawer")) {
-				mScale = 4f;
+				mScale = 1.1f;
 				mFPS = 0.01f;
 			}
 			
